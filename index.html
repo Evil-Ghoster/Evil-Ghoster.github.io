@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-    <title>ONJA - Portfolio </title>
+    <title>ONJA - Portfolio</title>
 
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
     <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
-
 
     <link rel="canonical" href="https://onjanirina.me">
     <meta property="og:url" content="https://onjanirina.me">
@@ -18,7 +17,7 @@
 </head>
 <body>
 
-    <!-- ANIMATION D'INTRODUCTION -->
+    <!-- Écran d'intro -->
     <div class="intro-splash" id="introSplash">
         <div class="intro-content">
             <img src="logo-onja.png" alt="Logo" class="intro-logo">
@@ -30,12 +29,11 @@
         </div>
     </div>
 
-    <!-- LOGO FIXE HAUT GAUCHE (visible dès qu'on quitte l'accueil) -->
+    <!-- Logo fixe (cliquable, ramène à l'accueil) -->
     <div class="fixed-logo" id="fixedLogo">
         <img src="logo-onja.png" alt="Logo">
     </div>
 
-    <!-- CAROUSEL FULL-SCREEN DE PAGES -->
     <div class="carousel-container">
 
         <button class="carousel-btn prev" id="arrowLeft" aria-label="Page précédente">
@@ -299,15 +297,15 @@
                     <div class="contact-content">
                         <form id="contactForm" class="contact-form" novalidate>
                             <div class="form-field">
-                                <input type="text" id="cf-name" placeholder="Votre nom" required>
+                                <input type="text" id="cf-name" name="from_name" placeholder="Votre nom" required>
                                 <span class="field-error">Merci d'indiquer votre nom.</span>
                             </div>
                             <div class="form-field">
-                                <input type="email" id="cf-email" placeholder="Votre email" required>
+                                <input type="email" id="cf-email" name="reply_to" placeholder="Votre email" required>
                                 <span class="field-error">Adresse email invalide.</span>
                             </div>
                             <div class="form-field">
-                                <textarea id="cf-message" placeholder="Votre message" rows="5" required></textarea>
+                                <textarea id="cf-message" name="message" placeholder="Votre message" rows="5" required></textarea>
                                 <span class="field-error">Merci d'écrire un message.</span>
                             </div>
                             <button type="submit" class="btn btn-primary">Envoyer</button>
@@ -337,7 +335,6 @@
             </section>
         </div>
 
-        <!-- CAROUSEL INDICATORS -->
         <div class="carousel-indicators">
             <span class="indicator active" data-index="0" title="Accueil"></span>
             <span class="indicator" data-index="1" title="À propos"></span>
