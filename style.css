@@ -84,40 +84,30 @@ body {
 
 .intro-content { text-align: center; }
 
-.intro-logo {
-    height: 46px;
-    opacity: 0;
-    animation: introLogo 0.9s var(--slide-ease) forwards 0.15s;
-    margin-bottom: 1.2rem;
-}
-
-@keyframes introLogo {
-    0% { opacity: 0; transform: scale(0.85); filter: blur(8px); }
-    100% { opacity: 1; transform: scale(1); filter: blur(0); }
-}
-
 .intro-name {
     display: flex;
     justify-content: center;
-    gap: 0.15em;
-    font-family: var(--font-display);
-    font-size: clamp(3rem, 12vw, 7rem);
-    font-weight: 900;
-    letter-spacing: 2px;
-    color: var(--text-light);
+    align-items: flex-end;
+    gap: 0.5rem;
 }
 
-.intro-name span {
-    display: inline-block;
+.intro-name img {
+    height: clamp(60px, 12vw, 140px);
+    width: auto;
     opacity: 0;
     transform: translateY(40px);
     animation: introLetter 0.6s cubic-bezier(.2, .8, .2, 1) forwards;
 }
 
-.intro-name span:nth-child(1) { animation-delay: 0.35s; }
-.intro-name span:nth-child(2) { animation-delay: 0.45s; }
-.intro-name span:nth-child(3) { animation-delay: 0.55s; }
-.intro-name span:nth-child(4) { animation-delay: 0.65s; color: var(--primary-color); }
+.intro-name img:nth-child(1) { animation-delay: 0.25s; }
+.intro-name img:nth-child(2) { animation-delay: 0.35s; }
+.intro-name img:nth-child(3) { animation-delay: 0.45s; }
+.intro-name img:nth-child(4) { animation-delay: 0.55s; }
+
+@keyframes introLogo {
+    0% { opacity: 0; transform: scale(0.85); filter: blur(8px); }
+    100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
 
 .intro-line {
     width: 220px;
