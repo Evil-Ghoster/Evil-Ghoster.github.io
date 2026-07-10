@@ -12,7 +12,7 @@ function playIntro() {
     introSplash.classList.remove('hide');
     void introSplash.offsetWidth; // force le reflow avant de réactiver la transition
     introSplash.style.transition = '';
-    introSplash.querySelectorAll('.intro-logo, .intro-name span, .intro-line span, .intro-tag')
+    introSplash.querySelectorAll('.intro-name img, .intro-line span, .intro-tag')
         .forEach((el) => {
             el.style.animation = 'none';
             void el.offsetWidth; // force le redémarrage de l'animation
