@@ -50,9 +50,8 @@ function triggerSlideAnimations(slideIndex) {
     // Reset and replay CSS animations on page-content children
     const pageContent = slide.querySelector('.page-content');
     if (pageContent) {
-        // Reset animation by removing and re-adding animated elements
         const animatedEls = pageContent.querySelectorAll(
-            '.skill-category, .project-card, .experience-item, .form-field, .social-icon, .about-img, .about-right, .contact-info'
+            '.skill-category, .project-card, .form-field, .social-icon, .about-img, .about-right, .contact-info'
         );
         animatedEls.forEach((el) => {
             el.style.animation = 'none';
@@ -61,14 +60,32 @@ function triggerSlideAnimations(slideIndex) {
         });
     }
 
-    // Animate experience items
+    // Animate experience items — force reflow to replay animation
     if (slide.classList.contains('experience-page')) {
         const items = slide.querySelectorAll('.experience-item');
         items.forEach((item, i) => {
+            // Reset to hidden state
             item.classList.remove('visible');
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-30px)';
+            void item.offsetWidth;
+            // Staggered reveal
             setTimeout(() => {
+                item.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                item.style.opacity = '1';
+                item.style.transform = 'translateX(0)';
                 item.classList.add('visible');
             }, 100 + i * 120);
+        });
+    }
+
+    // Animate expertise list items
+    const expertiseItems = slide.querySelectorAll('.expertise-list li');
+    if (expertiseItems.length) {
+        expertiseItems.forEach((el) => {
+            el.style.animation = 'none';
+            void el.offsetWidth;
+            el.style.animation = '';
         });
     }
 }
