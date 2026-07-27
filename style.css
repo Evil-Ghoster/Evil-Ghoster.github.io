@@ -554,6 +554,7 @@ body {
     grid-template-columns: 0.8fr 1.2fr;
     gap: 4rem;
     align-items: center;
+    overflow-y: hidden;
 }
 
 .about-img {
