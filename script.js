@@ -10,12 +10,12 @@ function playIntro() {
     clearTimeout(introTimer);
     introSplash.style.transition = 'none';
     introSplash.classList.remove('hide');
-    void introSplash.offsetWidth; // force le reflow avant de réactiver la transition
+    void introSplash.offsetWidth;
     introSplash.style.transition = '';
     introSplash.querySelectorAll('.intro-name img, .intro-line span, .intro-tag')
         .forEach((el) => {
             el.style.animation = 'none';
-            void el.offsetWidth; // force le redémarrage de l'animation
+            void el.offsetWidth;
             el.style.animation = '';
         });
     introTimer = setTimeout(hideIntro, 2600);
@@ -42,6 +42,37 @@ function updateArrows() {
 
 function reflow(el) { void el.offsetHeight; }
 
+// Trigger staggered entrance animations on slide children
+function triggerSlideAnimations(slideIndex) {
+    const slide = slides[slideIndex];
+    if (!slide) return;
+
+    // Reset and replay CSS animations on page-content children
+    const pageContent = slide.querySelector('.page-content');
+    if (pageContent) {
+        // Reset animation by removing and re-adding animated elements
+        const animatedEls = pageContent.querySelectorAll(
+            '.skill-category, .project-card, .experience-item, .form-field, .social-icon, .about-img, .about-right, .contact-info'
+        );
+        animatedEls.forEach((el) => {
+            el.style.animation = 'none';
+            void el.offsetWidth;
+            el.style.animation = '';
+        });
+    }
+
+    // Animate experience items
+    if (slide.classList.contains('experience-page')) {
+        const items = slide.querySelectorAll('.experience-item');
+        items.forEach((item, i) => {
+            item.classList.remove('visible');
+            setTimeout(() => {
+                item.classList.add('visible');
+            }, 100 + i * 120);
+        });
+    }
+}
+
 function showSlide(index, direction) {
     if (index < 0 || index >= totalSlides) return;
     if (isAnimating || index === currentSlide) return;
@@ -51,27 +82,35 @@ function showSlide(index, direction) {
     const oldSlide = slides[currentSlide];
     const newSlide = slides[index];
 
-    oldSlide.style.transform = `translateX(${-dir * 8}%)`;
+    // Outgoing slide
+    oldSlide.style.transition = 'transform 0.6s cubic-bezier(.77, 0, .18, 1), opacity 0.5s ease';
+    oldSlide.style.transform = `translateX(${-dir * 10}%) scale(0.96)`;
     oldSlide.style.opacity = '0';
     oldSlide.classList.remove('active');
 
+    // Incoming slide: position off-screen, then animate in
     newSlide.style.transition = 'none';
-    newSlide.style.transform = `translateX(${dir * 8}%)`;
+    newSlide.style.transform = `translateX(${dir * 10}%) scale(0.96)`;
     newSlide.style.opacity = '0';
     reflow(newSlide);
 
-    newSlide.style.transition = '';
-    newSlide.style.transform = 'translateX(0)';
+    newSlide.style.transition = 'transform 0.7s cubic-bezier(.77, 0, .18, 1), opacity 0.6s ease';
+    newSlide.style.transform = 'translateX(0) scale(1)';
     newSlide.style.opacity = '1';
     newSlide.classList.add('active');
 
+    // Update indicators
     indicators.forEach((i) => i.classList.remove('active'));
     indicators[index].classList.add('active');
     fixedLogo.classList.toggle('visible', index !== 0);
 
     currentSlide = index;
     updateArrows();
-    setTimeout(() => { isAnimating = false; }, 720);
+
+    // Trigger entrance animations for the new slide
+    triggerSlideAnimations(index);
+
+    setTimeout(() => { isAnimating = false; }, 750);
 }
 
 function nextSlide() { showSlide(currentSlide + 1, 1); }
@@ -89,23 +128,105 @@ document.querySelectorAll('[data-target]').forEach((btn) => {
     btn.addEventListener('click', (e) => { e.preventDefault(); nextSlide(); });
 });
 
-// Clic sur le logo : retour à l'accueil + rejoue l'animation d'intro
+// Click logo: return to hero + replay intro
 fixedLogo.addEventListener('click', (e) => {
     e.preventDefault();
     showSlide(0, -1);
     playIntro();
 });
 
-// Navigation clavier (flèches uniquement)
+// Keyboard navigation
 document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextSlide();
     if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') previousSlide();
 });
 
-// La molette et le glissement tactile ne changent plus de section : ils ne
-// servent qu'à faire défiler le contenu interne (ex: liste Expérience) quand
-// il dépasse la hauteur de l'écran. Seuls les flèches, le clavier et les
-// points de navigation changent de page.
+// ===== PARALLAX HERO WORDMARK =====
+const heroWordmark = document.querySelector('.hero-wordmark');
+const heroSection = document.querySelector('.hero-page');
+
+if (heroWordmark && heroSection) {
+    heroSection.addEventListener('mousemove', (e) => {
+        const rect = heroSection.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        heroWordmark.style.transform = `translateY(-50%) translate(${x * 20}px, ${y * 15}px)`;
+    });
+
+    heroSection.addEventListener('mouseleave', () => {
+        heroWordmark.style.transition = 'transform 0.6s ease-out';
+        heroWordmark.style.transform = 'translateY(-50%) translate(0, 0)';
+        setTimeout(() => { heroWordmark.style.transition = ''; }, 600);
+    });
+}
+
+// ===== TILT EFFECT ON CARDS =====
+function addTiltEffect(selector, maxTilt = 6) {
+    const cards = document.querySelectorAll(selector);
+    cards.forEach((card) => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+            const tiltX = (0.5 - y) * maxTilt;
+            const tiltY = (x - 0.5) * maxTilt;
+            card.style.transform = `perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-8px)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0)';
+            setTimeout(() => { card.style.transition = ''; }, 500);
+        });
+    });
+}
+
+// Apply tilt to skill cards and project cards
+addTiltEffect('.skill-category', 5);
+addTiltEffect('.project-card', 4);
+
+// ===== AMBIENT GLOW FOLLOWS MOUSE (Hero) =====
+const ambientGlow = document.querySelector('.ambient-glow');
+const heroImage = document.querySelector('.hero-image');
+
+if (ambientGlow && heroImage) {
+    heroImage.addEventListener('mousemove', (e) => {
+        const rect = heroImage.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        ambientGlow.style.left = x + '%';
+        ambientGlow.style.top = y + '%';
+    });
+
+    heroImage.addEventListener('mouseleave', () => {
+        ambientGlow.style.transition = 'left 0.8s ease, top 0.8s ease';
+        ambientGlow.style.left = '50%';
+        ambientGlow.style.top = '38%';
+        setTimeout(() => { ambientGlow.style.transition = ''; }, 800);
+    });
+}
+
+// ===== MAGNETIC BUTTON EFFECT =====
+function addMagneticEffect(selector, strength = 0.3) {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach((el) => {
+        el.addEventListener('mousemove', (e) => {
+            const rect = el.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            el.style.transform = `translate(${x * strength}px, ${y * strength - 3}px)`;
+        });
+
+        el.addEventListener('mouseleave', () => {
+            el.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            el.style.transform = 'translate(0, 0)';
+            setTimeout(() => { el.style.transition = ''; }, 400);
+        });
+    });
+}
+
+addMagneticEffect('.hero-btn');
+addMagneticEffect('.social-icon', 0.2);
 
 // ===== FORMULAIRE DE CONTACT =====
 const contactForm = document.getElementById('contactForm');
@@ -135,6 +256,7 @@ if (contactForm) {
         button.textContent = 'Message envoyé !';
         button.style.backgroundColor = '#2e8b57';
         button.style.borderColor = '#2e8b57';
+        button.style.transform = 'scale(1.02)';
 
         this.reset();
 
@@ -142,8 +264,15 @@ if (contactForm) {
             button.textContent = originalText;
             button.style.backgroundColor = '';
             button.style.borderColor = '';
+            button.style.transform = '';
         }, 3000);
     });
 }
 
+// ===== INITIAL STATE =====
 updateArrows();
+
+// Trigger animations for the first slide (hero) on load
+setTimeout(() => {
+    triggerSlideAnimations(0);
+}, 300);
